@@ -7,8 +7,7 @@ ARG PGPASSWORD
 
 ARG PORT
 
-# FROM python:3.8.10-slim
-FROM moh3azzain/odoo-dev-env:test
+FROM minhphuong678922/python38_odoo12:v1
 
 SHELL ["/bin/bash", "-xo", "pipefail", "-c"]
 
@@ -24,30 +23,33 @@ ENV DBPORT=$PGPORT
 ENV HTTPPORT=$PORT
 
 # Copy Odoo configuration file
-COPY ./odoo-dev-env/odoo.conf /etc/odoo/
+COPY ./odoo.conf /etc/odoo/
 
 RUN useradd -rm -d /home/odoo -s /bin/bash -G sudo odoo
 
 RUN chown odoo /etc/odoo/odoo.conf && mkdir -p /var/lib/odoo && chown odoo /var/lib/odoo
 
+# COPY ../odoo/custom-addons/ dest
+# RUN mkdir -p /mnt/extra-addons && chown -R odoo /mnt/extra-addons
+# VOLUME ["/var/lib/odoo", "/mnt/extra-addons"]
 
 WORKDIR /home/odoo/app
 
 # Copy odoo source code 
 # This will actually be overriden by the mount in the docker compose
-# COPY ./odoo/ /home/odoo/app 
+# COPY ../odoo/ /home/odoo/app 
 
-COPY ./odoo-dev-env/wait-for-psql.py /usr/local/bin/wait-for-psql.py
+COPY ./wait-for-psql.py /usr/local/bin/wait-for-psql.py
 RUN dos2unix /usr/local/bin/wait-for-psql.py
 # Copy the entrypoint file
-COPY ./odoo-dev-env/entrypoint.sh /home/odoo
+COPY ./entrypoint.sh /home/odoo
 RUN dos2unix /home/odoo/entrypoint.sh
 
 # Set default user when running the container
 USER odoo
 
 # This volume has been moved into docker-compose.yml
-# VOLUME ["/var/lib/odoo"]
+VOLUME ["/var/lib/odoo"]
 
 # Expose Odoo services
 # EXPOSE 8069 8071 8072

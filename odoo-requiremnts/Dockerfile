@@ -1,4 +1,4 @@
-FROM python:3.8.10-slim
+FROM python:3.8.10
 
 SHELL ["/bin/bash", "-xo", "pipefail", "-c"]
 
@@ -46,7 +46,6 @@ RUN apt-get update --allow-releaseinfo-change -y && \
     apt-get install -y --no-install-recommends \
     python3-dev libxml2-dev libxslt1-dev libldap2-dev libsasl2-dev \
     libtiff5-dev \
-#     libjpeg8-dev \ has an issue: https://github.com/Automattic/node-canvas/issues/524
     libjpeg62-turbo \
     libopenjp2-7-dev zlib1g-dev libfreetype6-dev \
     liblcms2-dev libwebp-dev libharfbuzz-dev libfribidi-dev libxcb1-dev libpq-dev \
@@ -54,7 +53,8 @@ RUN apt-get update --allow-releaseinfo-change -y && \
 
 # Copy the requirements.txt
 COPY . /
+RUN pip3 install --upgrade pip
 RUN pip3 install setuptools wheel
-RUN pip3 install -r requirements.txt
+RUN pip3 install -r /requirements.txt
 
 CMD ["python3"]

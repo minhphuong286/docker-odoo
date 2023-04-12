@@ -14,7 +14,7 @@ fi
 : ${DBPORT:=${DB_PORT_5432_TCP_PORT:=5432}}
 : ${USER:=${DB_ENV_POSTGRES_USER:=${POSTGRES_USER:="odoo"}}}
 : ${PASSWORD:=${DB_ENV_POSTGRES_PASSWORD:=${POSTGRES_PASSWORD:="odoo"}}}
-: ${DATABASE:=${DB_ENV_POSTGRES_DATABASE:=${POSTGRES_DATABASE:="railway"}}}
+: ${DATABASE:=${DB_ENV_POSTGRES_DATABASE:=${POSTGRES_DATABASE:="hsdb12"}}}
 : ${HTTPPORT:=8069}
 
 
@@ -34,23 +34,29 @@ check_config "db_user" "$USER"
 check_config "db_password" "$PASSWORD"
 check_config "database" "$DATABASE"
 check_config "http-port" "$HTTPPORT"
-
+echo "----------"
+echo "$@" 
+echo "${DB_ARGS[@]}"
+echo "----------"
 case "$1" in
     -- | odoo)
         shift
         if [[ "$1" == "scaffold" ]] ; then
-#            exec odoo "$@"
+        #    exec odoo "$@"
             python3 odoo-bin "$@"
         else
             wait-for-psql.py ${DB_ARGS[@]} --timeout=30
-#            exec odoo "$@" "${DB_ARGS[@]}"
-            python3 odoo-bin "$@" "${DB_ARGS[@]}"
+        #    exec odoo "$@" "${DB_ARGS[@]}"
+            echo "22"
+            # python3 odoo-bin --addons=addons/,custom_addons/ -i base "$@" "${DB_ARGS[@]}"
+            python3 odoo-bin -c $ODOO_RC
         fi
         ;;
     -*)
         wait-for-psql.py ${DB_ARGS[@]} --timeout=30
-#        exec odoo "$@" "${DB_ARGS[@]}"
-        python3 odoo-bin "$@" "${DB_ARGS[@]}"
+    #    exec odoo "$@" "${DB_ARGS[@]}"
+        # python3 odoo-bin --addons=addons/,custom_addons/ -i base "$@" "${DB_ARGS[@]}"
+        python3 odoo-bin -c $ODOO_RC
         ;;
     *)
         exec "$@"
